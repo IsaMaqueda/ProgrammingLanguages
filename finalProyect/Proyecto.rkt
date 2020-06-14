@@ -13,6 +13,9 @@
 (define output-channel (make-channel))
 (define file-channel (make-channel))
 
+;Global variable of list 
+(define column '())
+
 ; function to write the output file
 
 (define printer
@@ -21,7 +24,7 @@
         (call-with-output-file "" #:exists 'truncate
             (lambda (out)
                 (let loop
-                ;no arguments
+                    ;no arguments
                     ()
                     ;iteration action
                     (define msg (channel-get output-channel))
@@ -32,25 +35,23 @@
                         [else (display msg out) (loop)])))))))
 
 
-
 ;Function that recieves the threads of the thread-maker to use the data 
 (define (list-maker name)
     (thread (lambda ()
         (let loop
-            ;creates an empty list 
-            ([list empty])
-            ;iteration actions
+            ;no arguments
+            ()
+            ;iteration actions 
             (define line (channel-get file-channel))
-            (cond 
+            (cond
+                ;exits the function when reciving the message end
                 [(equal? line 'end)(printf "Thread ~a finishin\n" name)]
-                [else ()]
-            )
+                ;write the data on the channel to the file and repeat
 
-        )
-    
-    ))
-)
-;you have to put (channel-put output-channel 'end)
+                [else 
+                    (append line column)
+                    (loop)])))))
+
 
 
 ;Function to create worker threads
@@ -69,7 +70,7 @@
                 [else 
                     (define data (string-split (string-trim line) ","))
                     ;send new string composed of the place name and average
-                    (channel-put file-channel (last data)); aqui estoy mandadno lo que se escribe
+                    (channel-put file-channel (last data)); here we send the last 
                     (loop)])))))
 
 
